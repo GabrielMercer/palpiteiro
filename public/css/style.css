@@ -1,36 +1,174 @@
+/* Reset e variáveis */
+:root {
+    --primary-color: #2563eb;
+    --secondary-color: #1e40af;
+    --background-color: #f1f5f9;
+    --card-background: #ffffff;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --border-radius: 12px;
+    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--background-color);
+    margin: 0;
+    padding: 0;
+    color: var(--text-primary);
+    line-height: 1.5;
+}
+
+/* Container principal */
 .container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0 1rem;
 }
 
+/* Cabeçalho */
+h1 {
+    text-align: center;
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 2rem;
+}
+
+/* Card do confronto */
+.confronto-completo {
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    transition: transform 0.2s ease;
+}
+
+.confronto-completo:hover {
+    transform: translateY(-2px);
+}
+
+/* Título do confronto */
+.confronto-completo h3 {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+/* Cards dos jogos */
 .jogo-card {
-    border: 1px solid #ddd;
-    padding: 15px;
-    margin-bottom: 15px;
-    border-radius: 5px;
+    background-color: var(--card-background);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    border-radius: calc(var(--border-radius) - 4px);
+    border: 1px solid #e2e8f0;
 }
 
+.jogo-card h4 {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.jogo-card.volta {
+    background-color: #f8fafc;
+}
+
+/* Confronto (linha do placar) */
 .confronto {
-    display: flex;
+    display: grid;
+    grid-template-columns: 2fr 1fr auto 1fr 2fr;
     align-items: center;
-    gap: 10px;
-    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.5rem;
 }
 
+/* Times */
+.confronto span {
+    font-weight: 500;
+    color: var(--text-primary);
+    text-align: center;
+}
+
+/* Inputs */
 input[type="number"] {
     width: 60px;
-    padding: 5px;
+    padding: 0.5rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    transition: border-color 0.2s ease;
 }
 
-button {
+input[type="number"]:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Botão de envio */
+button[type="submit"] {
     display: block;
     width: 100%;
-    padding: 10px;
-    background-color: #007bff;
+    max-width: 300px;
+    margin: 2rem auto;
+    padding: 1rem;
+    background-color: var(--primary-color);
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
-    margin-top: 20px;
+    transition: all 0.2s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-1px);
+}
+
+button[type="submit"]:active {
+    transform: translateY(0);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 0.5rem;
+    }
+
+    .confronto {
+        grid-template-columns: 1fr auto 1fr;
+        gap: 0.5rem;
+    }
+
+    .confronto span {
+        font-size: 0.9rem;
+    }
+
+    input[type="number"] {
+        width: 50px;
+    }
+}
+
+/* Animações */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.confronto-completo {
+    animation: fadeIn 0.3s ease-out;
 } 
