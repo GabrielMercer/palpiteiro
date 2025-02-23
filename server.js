@@ -1,6 +1,14 @@
+require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+const mongoose = require('mongoose');
+const session = require('express-session');
+const User = require('./models/User');
+const Palpite = require('./models/Palpite');
+const auth = require('./middleware/auth');
+const jwt = require('jsonwebtoken');
+
 const app = express();
 
 // Configurações
@@ -8,6 +16,19 @@ app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+// Adicione configuração de sessão
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: process.env.NODE_ENV === 'production' }
+}));
+
+// Conectar ao MongoDB
+mongoose.connect(process.env.MONGODB_URI)
+    .then(() => console.log('Conectado ao MongoDB'))
+    .catch(err => console.error('Erro ao conectar ao MongoDB:', err));
 
 // Dados mockados dos jogos (depois virão do banco)
 const jogos = [
@@ -44,16 +65,65 @@ const jogos = [
     { id: 16, timeCasa: 'Inter', timeFora: 'Feyenoord', fase: 'Oitavas Volta' }
 ];
 
-// Rotas
-app.get('/', (req, res) => {
-    res.render('index', { jogos: jogos });
+// Rotas de autenticação
+app.get('/login', (req, res) => {
+    res.render('login');
 });
 
-app.post('/salvar-palpites', (req, res) => {
-    const palpites = req.body;
-    console.log('Palpites recebidos:', palpites);
-    // Aqui você salvará no banco de dados
-    res.json({ success: true });
+app.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const user = await User.findOne({ email });
+
+        if (!user || !(await user.comparePassword(password))) {
+            return res.status(401).json({ error: 'Credenciais inválidas' });
+        }
+
+        const token = jwt.sign(
+            { userId: user._id, username: user.username },
+            process.env.JWT_SECRET,
+            { expiresIn: '24h' }
+        );
+
+        req.session.token = token;
+        res.redirect('/');
+    } catch (error) {
+        res.status(500).json({ error: 'Erro no servidor' });
+    }
+});
+
+// Proteger rota principal
+app.get('/', auth, (req, res) => {
+    res.render('index', { 
+        jogos: jogos,
+        user: req.user 
+    });
+});
+
+// Salvar palpites
+app.post('/salvar-palpites', auth, async (req, res) => {
+    try {
+        const palpites = req.body;
+        
+        // Converter palpites para o formato do banco
+        const palpitesParaSalvar = Object.entries(palpites).map(([key, valor]) => {
+            const [tipo, jogoId, campo] = key.split('_');
+            return {
+                usuario: req.user.userId,
+                jogoId: parseInt(jogoId),
+                golsCasa: parseInt(valor),
+                golsFora: parseInt(palpites[`${tipo}_${jogoId}_fora`])
+            };
+        });
+
+        // Salvar palpites
+        await Palpite.insertMany(palpitesParaSalvar);
+        
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Erro ao salvar palpites:', error);
+        res.status(500).json({ error: 'Erro ao salvar palpites' });
+    }
 });
 
 const PORT = process.env.PORT || 3000;
