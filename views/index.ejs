@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palpites Champions League</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Palpites Champions League</h1>
+        
+        <form id="palpitesForm">
+            <% jogos.forEach(jogo => { %>
+                <div class="jogo-card">
+                    <h3><%= jogo.fase %></h3>
+                    <div class="confronto">
+                        <span><%= jogo.timeCasa %></span>
+                        <input type="number" min="0" required 
+                               name="ida_<%= jogo.id %>_casa" 
+                               placeholder="Casa">
+                        x
+                        <input type="number" min="0" required 
+                               name="ida_<%= jogo.id %>_fora" 
+                               placeholder="Fora">
+                        <span><%= jogo.timeFora %></span>
+                    </div>
+                </div>
+            <% }); %>
+            
+            <button type="submit">Salvar Palpites</button>
+        </form>
+    </div>
+    <script src="/js/main.js"></script>
+</body>
+</html> 
